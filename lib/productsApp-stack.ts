@@ -43,9 +43,9 @@ export class ProducrsAppStack extends cdk.Stack {
       this.productsDdb.grantReadData(this.productsFetchHandler)
 
       this.productsAdminHandler = new lambdaNodeJS.NodejsFunction(this, 
-         "ProductsAdminHandler", {
-            functionName: "ProductsAdminHandler",
-            entry: "lambda/products/productsAdminHandler.ts",
+         "ProductsAdminFunction", {
+            functionName: "ProductsAdminFunction",
+            entry: "lambda/products/productsAdminFunction.ts",
             handler: "handler",
             memorySize: 512,
             timeout: cdk.Duration.seconds(5),
