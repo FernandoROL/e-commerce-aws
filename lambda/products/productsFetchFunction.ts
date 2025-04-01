@@ -1,38 +1,62 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from "aws-lambda";
+import {
+  APIGatewayProxyEvent,
+  APIGatewayProxyResult,
+  Context,
+} from "aws-lambda";
+import { ProductRepository } from "/opt/nodejs/productsLayer";
+import { DynamoDB } from "aws-sdk";
 
-export async function handler(event: APIGatewayProxyEvent, 
-   context: Context): Promise<APIGatewayProxyResult> {
+const productDdb = process.env.PRODUCTS_DDB!;
+const ddbClient = new DynamoDB.DocumentClient();
 
-   const lambdaRequestId = context.awsRequestId
-   const apiRequestId = event.requestContext.requestId
+const productsRepository = new ProductRepository(ddbClient, productDdb);
+export async function handler(
+  event: APIGatewayProxyEvent,
+  context: Context
+): Promise<APIGatewayProxyResult> {
+  const lambdaRequestId = context.awsRequestId;
+  const apiRequestId = event.requestContext.requestId;
 
-   console.log(`API Gateway RequestId: ${apiRequestId} - Lambda RequestId: ${lambdaRequestId}`)
-   
-   const method = event.httpMethod
-   if (event.resource === "/products") {
-      if (method === 'GET') {
-         console.log('GET')
+  console.log(
+    `API Gateway RequestId: ${apiRequestId} - Lambda RequestId: ${lambdaRequestId}`
+  );
 
-         return {
-            statusCode: 200,
-            body: JSON.stringify({
-               message: "GET Products - OK"               
-            })
-         }
-      }
-   } else if (event.resource == "/products/{id}") {
-      const productsId = event.pathParameters!.id as string
-      console.log(`GET /products/${productsId}`)
+  const method = event.httpMethod;
+  if (event.resource === "/products") {
+    if (method === "GET") {
+      console.log("GET");
+
+      const products = await productsRepository.getAllProducts();
+
       return {
-         statusCode: 200,
-         body: `GET /products/${productsId}`
-      }
-   }
+        statusCode: 200,
+        body: JSON.stringify(products),
+      };
+    }
+  } else if (event.resource == "/products/{id}") {
+    const productsId = event.pathParameters!.id as string;
+    console.log(`GET /products/${productsId}`);
 
-   return {
-      statusCode: 400,
-      body: JSON.stringify({
-         message: "Bad request"
-      })
-   }
+    try {
+      const product = await productsRepository.getProductById(productsId);
+
+      return {
+        statusCode: 200,
+        body: JSON.stringify(product),
+      };
+    } catch (error) {
+      console.error((<Error>error).message)
+      return {
+         statusCode: 400,
+         body: (<Error>error).message
+      }
+    }
+  }
+
+  return {
+    statusCode: 400,
+    body: JSON.stringify({
+      message: "Bad request",
+    }),
+  };
 }
