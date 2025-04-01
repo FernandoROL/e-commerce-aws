@@ -33,7 +33,9 @@ export async function handler(
         body: JSON.stringify(products),
       };
     }
-  } else if (event.resource == "/products/{id}") {
+  }
+
+  if (event.resource == "/products/{id}") {
     const productsId = event.pathParameters!.id as string;
     console.log(`GET /products/${productsId}`);
 
@@ -45,11 +47,11 @@ export async function handler(
         body: JSON.stringify(product),
       };
     } catch (error) {
-      console.error((<Error>error).message)
+      console.error((<Error>error).message);
       return {
-         statusCode: 400,
-         body: (<Error>error).message
-      }
+        statusCode: 400,
+        body: (<Error>error).message,
+      };
     }
   }
 

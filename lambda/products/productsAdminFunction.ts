@@ -31,7 +31,9 @@ export async function handler(
       statusCode: 201,
       body: JSON.stringify(productCreated),
     };
-  } else if (event.resource === "/products/{id}") {
+  }
+
+  if (event.resource === "/products/{id}") {
     const productId = event.pathParameters!.id as string;
     if (event.httpMethod === "PUT") {
       console.log(`PUT /products/${productId}`);
@@ -43,7 +45,6 @@ export async function handler(
       );
 
       try {
-        const product = await productsRepository.deleteProduct(productId);
         return {
           statusCode: 200,
           body: JSON.stringify(productUpdated),
@@ -54,7 +55,9 @@ export async function handler(
           body: "Product not found with given ID",
         };
       }
-    } else if (event.httpMethod === "DELETE") {
+    }
+
+    if (event.httpMethod === "DELETE") {
       console.log(`DELETE /products/${productId}`);
 
       try {
