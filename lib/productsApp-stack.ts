@@ -45,6 +45,7 @@ export class ProducrsAppStack extends cdk.Stack {
             ],
          },            
          tracing: lambda.Tracing.ACTIVE,
+         insightsVersion: lambda.LambdaInsightsVersion.VERSION_1_0_229_0,
          runtime: lambda.Runtime.NODEJS_20_X,
          environment: {
             PRODUCTS_DDB: this.productsDdb.tableName
@@ -67,7 +68,8 @@ export class ProducrsAppStack extends cdk.Stack {
                   'aws-xray-sdk-core'
                ],
             },            
-            tracing: lambda.Tracing.ACTIVE,          
+            tracing: lambda.Tracing.ACTIVE,
+            insightsVersion: lambda.LambdaInsightsVersion.VERSION_1_0_229_0,
             runtime: lambda.Runtime.NODEJS_20_X,
             environment: {
                PRODUCTS_DDB: this.productsDdb.tableName
