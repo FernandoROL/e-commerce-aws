@@ -40,7 +40,11 @@ export class ProducrsAppStack extends cdk.Stack {
          bundling: {
             minify: true,
             sourceMap: false,
+            nodeModules: [
+               'aws-xray-sdk-core'
+            ],
          },            
+         tracing: lambda.Tracing.ACTIVE,
          runtime: lambda.Runtime.NODEJS_20_X,
          environment: {
             PRODUCTS_DDB: this.productsDdb.tableName
@@ -59,7 +63,11 @@ export class ProducrsAppStack extends cdk.Stack {
             bundling: {
                minify: true,
                sourceMap: false,
+               nodeModules: [
+                  'aws-xray-sdk-core'
+               ],
             },            
+            tracing: lambda.Tracing.ACTIVE,          
             runtime: lambda.Runtime.NODEJS_20_X,
             environment: {
                PRODUCTS_DDB: this.productsDdb.tableName

@@ -5,7 +5,9 @@ import {
   APIGatewayProxyResult,
   Context,
 } from "aws-lambda";
+import * as AWSXRay from "aws-xray-sdk"
 
+AWSXRay.captureAWS(require("aws-sdk"))
 const productDdb = process.env.PRODUCTS_DDB!;
 const ddbClient = new DynamoDB.DocumentClient();
 
