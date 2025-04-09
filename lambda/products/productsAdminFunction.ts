@@ -38,7 +38,7 @@ export async function handler(
       lambdaRequestId
     );
 
-    console.log(response)
+    console.log(response);
 
     return {
       statusCode: 201,
