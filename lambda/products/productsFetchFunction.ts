@@ -3,7 +3,7 @@ import {
   APIGatewayProxyResult,
   Context,
 } from "aws-lambda";
-import { ProductRepository } from "/opt/nodejs/productsLayer";
+import { ProductRepository } from "@productsRepository"
 import { DynamoDB } from "aws-sdk";
 import * as AWSXRay from "aws-xray-sdk"
 

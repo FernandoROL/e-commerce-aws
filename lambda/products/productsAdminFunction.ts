@@ -1,17 +1,19 @@
-import { Product, ProductRepository } from "/opt/nodejs/productsLayer";
-import { DynamoDB } from "aws-sdk";
+import { Product, ProductRepository } from "@productsRepository";
+import { DynamoDB, Lambda } from "aws-sdk";
 import {
   APIGatewayProxyEvent,
   APIGatewayProxyResult,
   Context,
 } from "aws-lambda";
-import * as AWSXRay from "aws-xray-sdk"
+import * as AWSXRay from "aws-xray-sdk";
+import { ProductEvent, productEventType } from "@productEventsLayer";
 
-AWSXRay.captureAWS(require("aws-sdk"))
+AWSXRay.captureAWS(require("aws-sdk"));
 const productDdb = process.env.PRODUCTS_DDB!;
 const ddbClient = new DynamoDB.DocumentClient();
-
-const productsRepository = new ProductRepository(ddbClient, productDdb);
+const productEventsFunctionName = process.env.PRODUCT_EVENTS_FUNCTION_NAME!;
+const lambdaClient = new Lambda();
+const productRepository = new ProductRepository(ddbClient, productDdb);
 
 export async function handler(
   event: APIGatewayProxyEvent,
@@ -27,7 +29,16 @@ export async function handler(
   if (event.resource == "/products") {
     console.log("POST /products");
     const product = JSON.parse(event.body!) as Product;
-    const productCreated = await productsRepository.create(product);
+    const productCreated = await productRepository.create(product);
+
+    const response = await sendProductEvent(
+      productCreated,
+      productEventType.CREATED,
+      "fernando@teste.com",
+      lambdaRequestId
+    );
+
+    console.log(response)
 
     return {
       statusCode: 201,
@@ -41,7 +52,7 @@ export async function handler(
       console.log(`PUT /products/${productId}`);
 
       const product = JSON.parse(event.body!) as Product;
-      const productUpdated = await productsRepository.updateProduct(
+      const productUpdated = await productRepository.updateProduct(
         productId,
         product
       );
@@ -63,7 +74,7 @@ export async function handler(
       console.log(`DELETE /products/${productId}`);
 
       try {
-        const product = await productsRepository.deleteProduct(productId);
+        const product = await productRepository.deleteProduct(productId);
         return {
           statusCode: 200,
           body: JSON.stringify(product),
@@ -81,4 +92,28 @@ export async function handler(
     statusCode: 400,
     body: "Bad request",
   };
+}
+
+function sendProductEvent(
+  product: Product,
+  eventType: productEventType,
+  email: string,
+  lambdaRequestId: string
+) {
+  const event: ProductEvent = {
+    email: email,
+    eventType: eventType,
+    productCode: product.code,
+    productPrice: product.price,
+    requestId: lambdaRequestId,
+    productId: product.id,
+  };
+
+  return lambdaClient
+    .invoke({
+      FunctionName: productEventsFunctionName,
+      Payload: JSON.stringify(event),
+      InvocationType: "RequestResponse", // Syncronous response
+    })
+    .promise();
 }
