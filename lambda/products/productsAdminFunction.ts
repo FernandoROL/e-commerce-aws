@@ -1,4 +1,4 @@
-import { Product, ProductRepository } from "@productsRepository";
+import { Product, ProductRepository } from "/opt/nodejs/productRepository";
 import { DynamoDB, Lambda } from "aws-sdk";
 import {
   APIGatewayProxyEvent,
@@ -6,7 +6,7 @@ import {
   Context,
 } from "aws-lambda";
 import * as AWSXRay from "aws-xray-sdk";
-import { ProductEvent, productEventType } from "@productEventsLayer";
+import { ProductEvent, productEventType } from "/opt/nodejs/productEvent";
 
 AWSXRay.captureAWS(require("aws-sdk"));
 const productDdb = process.env.PRODUCTS_DDB!;

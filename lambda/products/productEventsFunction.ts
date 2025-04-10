@@ -1,9 +1,9 @@
-import { ProductEvent } from "@productEventsLayer";
+import { ProductEvent } from "/opt/nodejs/productEvent";
 import { Callback, Context } from "aws-lambda";
 import { DynamoDB } from "aws-sdk";
 import * as AWSXray from "aws-xray-sdk";
 
-AWSXray.captureAWS(require("aws-cdk"));
+AWSXray.captureAWS(require("aws-sdk"));
 
 const eventsDbd = process.env.EVENTS_DDB!
 const ddbClient = new DynamoDB.DocumentClient();

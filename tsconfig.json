@@ -24,10 +24,10 @@
     ],
     "baseUrl": "./",
     "paths": {
-      "@productsRepository":[
+      "/opt/nodejs/productRepository":[
         "lambda/products/layers/productsLayer/nodejs/productRepository"
       ],
-        "@productEventsLayer": [
+        "/opt/nodejs/productEvent": [
           "lambda/products/layers/productsEventLayer/nodejs/productEvent"
       ]
     }
