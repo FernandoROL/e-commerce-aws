@@ -2,9 +2,7 @@
   "compilerOptions": {
     "target": "ES2018",
     "module": "commonjs",
-    "lib": [
-      "es2018"
-    ],
+    "lib": ["es2018"],
     "declaration": true,
     "strict": true,
     "noImplicitAny": true,
@@ -19,21 +17,19 @@
     "inlineSources": true,
     "experimentalDecorators": true,
     "strictPropertyInitialization": false,
-    "typeRoots": [
-      "./node_modules/@types"
-    ],
+    "typeRoots": ["./node_modules/@types"],
     "baseUrl": "./",
     "paths": {
-      "/opt/nodejs/productRepository":[
+      "/opt/nodejs/productRepository": [
         "lambda/products/layers/productsLayer/nodejs/productRepository"
       ],
-        "/opt/nodejs/productEvent": [
-          "lambda/products/layers/productsEventLayer/nodejs/productEvent"
+      "/opt/nodejs/productEvent": [
+        "lambda/products/layers/productsEventLayer/nodejs/productEvent"
+      ],
+      "/opt/nodejs/ordersLayer": [
+        "lambda/orders/layers/ordersLayer/nodejs/orderRepository"
       ]
     }
   },
-  "exclude": [
-    "node_modules",
-    "cdk.out"
-  ]
+  "exclude": ["node_modules", "cdk.out"]
 }
