@@ -20,70 +20,100 @@ export class ProductRepository {
   }
 
   async getAllProducts(): Promise<Product[]> {
-    const data = await this.ddbClient.scan({ TableName: this.productsDdb }).promise();
+    const data = await this.ddbClient
+      .scan({ TableName: this.productsDdb })
+      .promise();
     return data.Items as Product[];
   }
 
   async getProductById(productId: string): Promise<Product> {
-    const data = await this.ddbClient.get({
+    const data = await this.ddbClient
+      .get({
         TableName: this.productsDdb,
         Key: {
-            id: productId
-        }
-    }).promise()
+          id: productId,
+        },
+      })
+      .promise();
 
-    if(data.Item) {
-        return data.Item as Product
+    if (data.Item) {
+      return data.Item as Product;
     } else {
-        throw new Error("Product not found with given ID")
+      throw new Error("Product not found with given ID");
     }
+  }
+
+  async getProductsById(productsIds: string[]): Promise<Product[]> {
+    const keys: {
+      id: string
+    }[] = []
+
+    productsIds.forEach((productId) => {
+      keys.push({
+        id: productId
+      })
+    } )
+
+    this.ddbClient.batchGet({
+      
+    });
   }
 
   async create(product: Product): Promise<Product> {
-    product.id = uuid()
-    await this.ddbClient.put({
+    product.id = uuid();
+    await this.ddbClient
+      .put({
         TableName: this.productsDdb,
-        Item: product
-    }).promise()
+        Item: product,
+      })
+      .promise();
 
-    return product
-  } 
+    return product;
+  }
 
   async deleteProduct(productId: string): Promise<Product> {
-    const data = await this.ddbClient.delete({
+    const data = await this.ddbClient
+      .delete({
         TableName: this.productsDdb,
         Key: {
-            id: productId
+          id: productId,
         },
-        ReturnValues: "ALL_OLD"
-    }).promise()
+        ReturnValues: "ALL_OLD",
+      })
+      .promise();
 
     if (data.Attributes) {
-        return data.Attributes as Product
+      return data.Attributes as Product;
     } else {
-        throw new Error("Product not found with given ID")
+      throw new Error("Product not found with given ID");
     }
   }
 
-  async updateProduct(productId: string, productNew: Product): Promise<Product> {
-    const data = await this.ddbClient.update({
+  async updateProduct(
+    productId: string,
+    productNew: Product
+  ): Promise<Product> {
+    const data = await this.ddbClient
+      .update({
         TableName: this.productsDdb,
         Key: {
-            id: productId
+          id: productId,
         },
         ConditionExpression: "attribute_exists(id)",
         ReturnValues: "UPDATED_NEW",
-        UpdateExpression: "set productName = :n, code = :c, price = :p, model = :m, productUrl = :u",
+        UpdateExpression:
+          "set productName = :n, code = :c, price = :p, model = :m, productUrl = :u",
         ExpressionAttributeValues: {
-            ":n": productNew.productName,
-            ":c": productNew.code,
-            ":p": productNew.price,
-            ":m": productNew.model,
-            ":u": productNew.productUrl
-        }
-    }).promise()
-    
-    data.Attributes!.id = productId
-    return data.Attributes as Product
+          ":n": productNew.productName,
+          ":c": productNew.code,
+          ":p": productNew.price,
+          ":m": productNew.model,
+          ":u": productNew.productUrl,
+        },
+      })
+      .promise();
+
+    data.Attributes!.id = productId;
+    return data.Attributes as Product;
   }
 }
