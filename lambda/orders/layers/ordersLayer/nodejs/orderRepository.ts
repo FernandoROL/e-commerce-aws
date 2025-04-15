@@ -9,7 +9,7 @@ export interface OrderProduct {
 export interface Order {
     pk: string,
     sk?: string,
-    createdAt: number,
+    createdAt?: number,
     shipping: {
         type: "URGENT" | "ECONOMIC",
         carrier: "CORREIOS" | "FEDEX"
