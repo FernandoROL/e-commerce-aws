@@ -14,7 +14,7 @@ import {
   OrderResponse,
   PaymentType,
   ShippingType,
-} from "./layers/ordersApiLayer/orderApi";
+} from "./layers/ordersApiLayer/nodejs/orderApi";
 
 awsxray.captureAWS(require("aws-sdk"));
 const ordersDdb = process.env.ORDERS_DDB!;
@@ -45,64 +45,66 @@ export async function handler(
       if (email) {
         if (orderId) {
           // Get one order from an user
-          const order = await orderRepository.getOrder(email, orderId)
+          const order = await orderRepository.getOrder(email, orderId);
           return {
             statusCode: 200,
-            body: JSON.stringify(convertToOrderResponse(order))
-          }
+            body: JSON.stringify(convertToOrderResponse(order)),
+          };
         } else {
           // Get all orders from an user
-          const order = await orderRepository.getOrdersByEmail(email)
+          const order = await orderRepository.getOrdersByEmail(email);
 
-          return{
+          return {
             statusCode: 200,
-            body: JSON.stringify(order.map(convertToOrderResponse))
-          }
+            body: JSON.stringify(order.map(convertToOrderResponse)),
+          };
         }
-      }
-    } else {
-      // GET all orders
-      const orders = await orderRepository.getAllOrders()
-      return {
-        statusCode: 200,
-        body: JSON.stringify(orders.map(convertToOrderResponse))
+      } else {
+        // GET all orders
+        const orders = await orderRepository.getAllOrders();
+        return {
+          statusCode: 200,
+          body: JSON.stringify(orders.map(convertToOrderResponse)),
+        };
       }
     }
   } else if (method === "POST") {
     console.log("POST /orders");
-    const orderRequest = JSON.parse(event.body!) as OrderRequest
-    const products = await productRepository.getProductsById(orderRequest.productIds)
-    if(products.length === orderRequest.productIds.length) {
-        const order = buildOrder(orderRequest, products)
-        const orderCreated = await orderRepository.createOrder(order)
+    const orderRequest = JSON.parse(event.body!) as OrderRequest;
+    const products = await productRepository.getProductsById(
+      orderRequest.productIds
+    );
+    if (products.length === orderRequest.productIds.length) {
+      const order = buildOrder(orderRequest, products);
+      const orderCreated = await orderRepository.createOrder(order);
 
-        return {
-            statusCode: 200,
-            body: JSON.stringify(convertToOrderResponse(orderCreated))
-        }
+      return {
+        statusCode: 200,
+        body: JSON.stringify(convertToOrderResponse(orderCreated)),
+      };
     } else {
-        return {
-            statusCode: 404,
-            body: "Not all products were found"
-        }
+      return {
+        statusCode: 404,
+        body: "Not all products were found",
+      };
     }
-
   } else if (method === "DELETE") {
     console.log("DELETE /orders");
     const email = event.queryStringParameters!.email!;
     const orderId = event.queryStringParameters!.orderId!;
 
     try {
-        const orderDelete = await orderRepository.deleteOrder(email, orderId)
-        return {statusCode: 200,
-            body: JSON.stringify(convertToOrderResponse(orderDelete))
-        }
-    } catch(err) {
-        console.log((<Error>err).message)
-    return {
+      const orderDelete = await orderRepository.deleteOrder(email, orderId);
+      return {
+        statusCode: 200,
+        body: JSON.stringify(convertToOrderResponse(orderDelete)),
+      };
+    } catch (err) {
+      console.log((<Error>err).message);
+      return {
         statusCode: 404,
-        body: (<Error>err).message
-    }
+        body: (<Error>err).message,
+      };
     }
   }
   return {
