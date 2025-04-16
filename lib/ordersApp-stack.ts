@@ -58,7 +58,8 @@ export class OrdersAppStack extends cdk.Stack {
                sourceMap: false               
             },            
             environment: {
-               PRODUCTS_DDB: props.productsDdb.tableName
+               PRODUCTS_DDB: props.productsDdb.tableName,
+               ORDERS_DDB: ordersDdb.tableName
             }, 
             layers: [ordersLayer, productsLayer, ordersApiLayer],
             tracing: lambda.Tracing.ACTIVE,

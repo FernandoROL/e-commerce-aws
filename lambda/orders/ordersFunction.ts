@@ -45,11 +45,19 @@ export async function handler(
       if (email) {
         if (orderId) {
           // Get one order from an user
-          const order = await orderRepository.getOrder(email, orderId);
-          return {
-            statusCode: 200,
-            body: JSON.stringify(convertToOrderResponse(order)),
-          };
+          try {
+            const order = await orderRepository.getOrder(email, orderId);
+            return {
+              statusCode: 200,
+              body: JSON.stringify(convertToOrderResponse(order)),
+            };
+          } catch (error) {
+            console.log((<Error>error).message);
+            return {
+              statusCode: 404,
+              body: (<Error>error).message,
+            };
+          }
         } else {
           // Get all orders from an user
           const order = await orderRepository.getOrdersByEmail(email);
@@ -59,14 +67,14 @@ export async function handler(
             body: JSON.stringify(order.map(convertToOrderResponse)),
           };
         }
-      } else {
-        // GET all orders
-        const orders = await orderRepository.getAllOrders();
-        return {
-          statusCode: 200,
-          body: JSON.stringify(orders.map(convertToOrderResponse)),
-        };
       }
+    } else {
+      // GET all orders
+      const orders = await orderRepository.getAllOrders();
+      return {
+        statusCode: 200,
+        body: JSON.stringify(orders.map(convertToOrderResponse)),
+      };
     }
   } else if (method === "POST") {
     console.log("POST /orders");
@@ -109,7 +117,7 @@ export async function handler(
   }
   return {
     statusCode: 400,
-    body: "Bad request",
+    body: `Bad request.\n\nEvent method: ${event.httpMethod}\nEvent body: ${event.body}\nPath parameters${event.queryStringParameters}`,
   };
 }
 
